@@ -2,7 +2,7 @@ import { Component } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { Searchbar } from './Searchbar/Searchbar';
-//import { ImageGallery } from './ImageGallery';
+import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchImages } from '../services/pixabayAPI';
 import { LoaderSkeleton } from './Loader/LoaderSkeleton';
 import { Button } from './Button/button';
@@ -42,7 +42,7 @@ class App extends Component {
 
         this.setState(prevState => {
           return {
-            images: [...prevState.images, ...searchImages],
+            images: [...prevState.images, ...searchImages.hits],
           };
         });
       } catch {
@@ -54,11 +54,12 @@ class App extends Component {
       }
   }
 
-  makeOptions = () => {
-    return this.state.images.map(({ id, webformatURL, largeImageURL }) => ({
+  makeOptions = hits => {
+    return hits.map(({ id, webformatURL, largeImageURL, tags }) => ({
       id,
       webformatURL,
       largeImageURL,
+      tags,
     }));
   };
 
@@ -84,10 +85,11 @@ class App extends Component {
   };
 
   render() {
-    const { images, isLoaded } = this.state;
+    const { searchQuery, images, isLoaded } = this.state;
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
+        {searchQuery && <ImageGallery imageItems={this.makeOptions} />}
         <Toaster position="bottom-right" />
         {isLoaded && <LoaderSkeleton />}
         {images.length > 12 && !isLoaded && (
