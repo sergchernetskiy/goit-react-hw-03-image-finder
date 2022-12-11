@@ -17,6 +17,7 @@ class App extends Component {
     isLoaded: false,
     isModalOpen: false,
     largeImageURL: null,
+    totalPages: null,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -33,6 +34,7 @@ class App extends Component {
         this.setState({ isLoaded: true, error: null });
 
         const searchImages = await fetchImages(searchQuery, page);
+        console.log(searchImages);
 
         if (searchImages.length < 1) {
           toast.info(
@@ -42,7 +44,7 @@ class App extends Component {
 
         this.setState(prevState => {
           return {
-            images: [...prevState.images, ...searchImages.hits],
+            images: [...prevState.images, ...searchImages.images],
           };
         });
       } catch {
@@ -53,15 +55,6 @@ class App extends Component {
         this.setState({ isLoaded: false });
       }
   }
-
-  makeOptions = hits => {
-    return hits.map(({ id, webformatURL, largeImageURL, tags }) => ({
-      id,
-      webformatURL,
-      largeImageURL,
-      tags,
-    }));
-  };
 
   handleSubmit = e => {
     e.preventDefault();
@@ -86,13 +79,14 @@ class App extends Component {
 
   render() {
     const { searchQuery, images, isLoaded } = this.state;
+
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
-        {searchQuery && <ImageGallery imageItems={this.makeOptions} />}
+        {searchQuery && <ImageGallery imageItems={images} />}
         <Toaster position="bottom-right" />
         {isLoaded && <LoaderSkeleton />}
-        {images.length > 12 && !isLoaded && (
+        {images.length > 1 && !isLoaded && (
           <Button onLoadMore={this.handleLoadMoreImages}>Load more</Button>
         )}
       </>

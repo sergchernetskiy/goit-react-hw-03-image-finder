@@ -6,7 +6,7 @@ export const GalleryList = styled.ul`
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   grid-gap: ${p => p.theme.space[4]}px;
   margin-top: ${p => p.theme.space[0]}px;
-  margin-bottom: ${p => p.theme.space[0]}px;
+  margin-bottom: ${p => p.theme.space[5]}px;
   padding: ${p => p.theme.space[0]}px;
   list-style: none;
   margin-left: auto;

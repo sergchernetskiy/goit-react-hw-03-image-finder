@@ -3,11 +3,11 @@ import styled from '@emotion/styled';
 export const BtnStyled = styled.button`
   padding: ${p => p.theme.space[3]}px ${p => p.theme.space[4]}px;
   margin: 0 auto;
-  border-radius: 2px;
+  border-radius: ${p => p.theme.radii.normal};
   background-color: ${p => p.theme.colors.accent};
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-  display: inline-block;
+  display: flex;
+  justify-content: center;
   color: ${p => p.theme.colors.white};
   border: ${p => p.theme.radii.none};
   text-decoration: none;
@@ -23,5 +23,6 @@ export const BtnStyled = styled.button`
   &:hover,
   &:focus {
     background-color: ${p => p.theme.colors.purple};
+    box-shadow: ${p => p.theme.shadows.active};
   }
 `;
