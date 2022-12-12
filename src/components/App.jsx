@@ -2,6 +2,7 @@ import { Component } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 
 import { Searchbar } from './Searchbar/Searchbar';
+import Modal from './Modal/Modal';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { fetchImages } from '../services/pixabayAPI';
 import { LoaderSkeleton } from './Loader/LoaderSkeleton';
@@ -21,7 +22,7 @@ class App extends Component {
   };
 
   async componentDidUpdate(_, prevState) {
-    const { searchQuery, page } = this.state;
+    const { searchQuery, page, totalPages } = this.state;
 
     if (prevState.searchQuery !== searchQuery || prevState.page !== page)
       try {
@@ -33,9 +34,8 @@ class App extends Component {
         }
         this.setState({ isLoaded: true, error: null });
 
-        const searchImages = await fetchImages(searchQuery, page);
+        const searchImages = await fetchImages(searchQuery, page, totalPages);
         console.log(searchImages);
-
         if (searchImages.length < 1) {
           toast.info(
             `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
@@ -45,8 +45,10 @@ class App extends Component {
         this.setState(prevState => {
           return {
             images: [...prevState.images, ...searchImages.images],
+            totalPages: totalPages,
           };
         });
+        this.setState({ totalPages });
       } catch {
         toast.error(
           `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
@@ -65,11 +67,6 @@ class App extends Component {
       return;
     }
 
-    if (inputQuery === this.state.searchQuery) {
-      toast.info('You enter the same request. Try enter something else');
-      return;
-    }
-
     this.setState({ searchQuery: inputQuery, page: 1, images: [] });
   };
 
@@ -77,17 +74,48 @@ class App extends Component {
     this.setState(prevState => ({ page: prevState.page + 1 }));
   };
 
+  openModal = () => {
+    this.setState({ isModalOpen: true });
+  };
+
+  closeModal = () => {
+    this.setState({ isModalOpen: false });
+  };
+
+  handleModal = url => {
+    this.setState({ largeImageURL: url });
+  };
+
   render() {
-    const { searchQuery, images, isLoaded } = this.state;
+    const {
+      searchQuery,
+      images,
+      isLoaded,
+      page,
+      totalPages,
+      largeImageURL,
+      isModalOpen,
+    } = this.state;
 
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
-        {searchQuery && <ImageGallery imageItems={images} />}
+        {searchQuery && (
+          <ImageGallery
+            imageItems={images}
+            onModal={this.openModal}
+            onHandleModal={this.handleModal}
+          />
+        )}
         <Toaster position="bottom-right" />
         {isLoaded && <LoaderSkeleton />}
-        {images.length > 1 && !isLoaded && (
+        {totalPages > 1 && totalPages > page && (
           <Button onLoadMore={this.handleLoadMoreImages}>Load more</Button>
+        )}
+        {isModalOpen && (
+          <Modal onCloseModal={this.closeModal}>
+            <img src={largeImageURL} alt="" />
+          </Modal>
         )}
       </>
     );
