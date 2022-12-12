@@ -27,7 +27,7 @@ class App extends Component {
     if (prevState.searchQuery !== searchQuery || prevState.page !== page)
       try {
         if (searchQuery === '') {
-          toast.info(
+          toast.error(
             `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
           );
           return;
@@ -35,20 +35,20 @@ class App extends Component {
         this.setState({ isLoaded: true, error: null });
 
         const searchImages = await fetchImages(searchQuery, page, totalPages);
-        console.log(searchImages);
-        if (searchImages.length < 1) {
-          toast.info(
+
+        if (searchImages.totalPages < 1) {
+          toast.error(
             `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
           );
+          return;
         }
 
         this.setState(prevState => {
           return {
             images: [...prevState.images, ...searchImages.images],
-            totalPages: totalPages,
           };
         });
-        this.setState({ totalPages });
+        this.setState({ totalPages: searchImages.totalPages });
       } catch {
         toast.error(
           `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
@@ -63,7 +63,7 @@ class App extends Component {
     const inputQuery = e.target.elements.query.value.trim().toLowerCase();
 
     if (inputQuery === '') {
-      toast.info('Enter the search data');
+      toast.error('Enter the search data');
       return;
     }
 
@@ -100,6 +100,7 @@ class App extends Component {
     return (
       <>
         <Searchbar onSubmit={this.handleSubmit} />
+        <Toaster position="bottom-right" />
         {searchQuery && (
           <ImageGallery
             imageItems={images}
@@ -107,7 +108,7 @@ class App extends Component {
             onHandleModal={this.handleModal}
           />
         )}
-        <Toaster position="bottom-right" />
+
         {isLoaded && <LoaderSkeleton />}
         {totalPages > 1 && totalPages > page && (
           <Button onLoadMore={this.handleLoadMoreImages}>Load more</Button>
