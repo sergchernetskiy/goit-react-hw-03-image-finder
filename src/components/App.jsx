@@ -22,18 +22,17 @@ class App extends Component {
   };
 
   async componentDidUpdate(_, prevState) {
-    const { searchQuery, page, totalPages } = this.state;
+    const { searchQuery, page, totalPages, error } = this.state;
 
-    if (prevState.searchQuery !== searchQuery || prevState.page !== page)
+    if (prevState.searchQuery !== searchQuery || prevState.page !== page) {
+      if (searchQuery === '') {
+        toast.error(
+          `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
+        );
+        return;
+      }
+      this.setState({ isLoaded: true, error: null });
       try {
-        if (searchQuery === '') {
-          toast.error(
-            `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
-          );
-          return;
-        }
-        this.setState({ isLoaded: true, error: null });
-
         const searchImages = await fetchImages(searchQuery, page, totalPages);
 
         if (searchImages.totalPages < 1) {
@@ -50,12 +49,14 @@ class App extends Component {
         });
         this.setState({ totalPages: searchImages.totalPages });
       } catch {
+        this.setState({ error: error.message });
         toast.error(
           `Sorry, there are no images matching your search query ${searchQuery}. Please try again.`
         );
       } finally {
         this.setState({ isLoaded: false });
       }
+    }
   }
 
   handleSubmit = e => {

@@ -7,8 +7,18 @@ axios.defaults.baseURL = 'https://pixabay.com/api/';
 const PER_PAGE = 12;
 
 export const fetchImages = async (query, page) => {
+  const params = {
+    q: query,
+    page,
+    key: API_KEY,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    per_page: PER_PAGE,
+  };
   const response = await axios.get(
-    `?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+    //`?q=${query}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`
+    '/',
+    { params }
   );
 
   const { hits, totalHits } = response.data;
